@@ -14,7 +14,7 @@ namespace thomas.Chess
         {
             m_turn = false;
             m_hasEnded = false;
-            m_board = new Board(8, 8);
+            m_board = new Board();
 
         }
 

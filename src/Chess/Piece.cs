@@ -4,35 +4,33 @@ using System.Text;
 
 namespace thomas.Chess
 {
-    abstract class Piece
+    public enum PieceType
     {
-        protected int[,] m_moveDirections;
+        Empty = 0x0,
+        Pawn = 0x1,
+        Knight = 0x2,
+        Bishop = 0x4,
+        Rook = 0x8,
+        Queen = 0x10,
+        King = 0x20
+    };
+
+    class Piece
+    {
         private readonly int m_color;
         private bool m_hasMoved;
-        private bool m_moveInDirectionForever;
 
         /// <summary>
-        /// Takes in bool of what color the piece is (-1 = empty, 0 = white, 1 = black)
+        /// Takes in an PieceType and int of what color the piece is (0 = white, 1 = black)
         /// </summary>
-        protected Piece(int color, bool moveInDirectionForever)
+        protected Piece(PieceType type, int color)
         {
             m_color = color;
             m_hasMoved = false;
-            m_moveInDirectionForever = moveInDirectionForever;
+            m_type = type;
         }
 
-        public Piece Copy()
-        {
-
-        }
-
-        /// <summary>
-        /// Returns 2D array of offsets in directions that piece can move.
-        /// </summary>
-        public int[,] GetMoveDirections()
-        {
-            return m_moveDirections;
-        }
+        PieceType m_type;
 
         public int GetColor()
         {
@@ -44,79 +42,15 @@ namespace thomas.Chess
             return m_hasMoved;
         }
 
-        public bool CanMoveInDirectionForever()
-        {
-            return m_moveInDirectionForever;
-        }
-
         public void Move()
         {
             m_hasMoved = true;
             return;
         }
 
-        public bool IsEmpty()
+        public PieceType Type()
         {
-            return m_color == -1;
-        }
-    }
-
-    class Empty : Piece
-    {
-        public Empty() : base(-1, false)
-        {
-            m_moveDirections = null;
-        }
-    }
-
-    class King : Piece
-    {
-        public King(int color) : base(color, false)
-        {
-            // Note: we don't keep track of castling here
-            m_moveDirections = new int[,] { { 1, 1 }, { -1, 1 }, { -1, -1 }, { 1, -1 }, { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
-        }
-    }
-    
-    class Queen : Piece
-    {
-        public Queen(int color) : base(color, true)
-        {
-            m_moveDirections = new int[,] { { 1, 1 }, { -1, 1 }, { -1, -1 }, { 1, -1 }, { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
-        }
-    }
-
-    class Rook : Piece
-    {
-        public Rook(int color) : base(color, true)
-        {
-            // Note: we don't keep track of castling here
-            m_moveDirections = new int[,] { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
-        }
-    }
-
-    class Bishop : Piece
-    {
-        public Bishop(int color) : base(color, true)
-        {
-            m_moveDirections = new int[,] { { 1, 1 }, { -1, 1 }, { -1, -1 }, { 1, -1 } };
-        }
-    }
-
-    class Knight : Piece
-    {
-        public Knight(int color) : base(color, false)
-        {
-            m_moveDirections = new int[,] { { 2, 1 }, { -2, 1 }, { -2, -1 }, { 2, -1 }, { -1, 2 }, { 1, 2 }, { 1, -2 }, { -1, -2 } };
-        }
-    }
-
-    class Pawn : Piece
-    {
-        public Pawn(int color) : base(color, false)
-        {
-            // Note: we don't keep track of en passant, first move 2-space move, or capture moves here
-            m_moveDirections = color == 1 ? new int[,] { { 1, 0 } } : new int[,] { { 1, 0 } };
+            return m_type;
         }
     }
 }

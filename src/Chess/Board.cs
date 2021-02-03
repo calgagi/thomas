@@ -12,7 +12,7 @@ namespace thomas.Chess
 
         public Board()
         {
-            m_pieces = new Empty[m_rows, m_cols];
+            m_pieces = new Piece[m_rows, m_cols];
         }
 
         public Board(Piece[,] pieces)
@@ -20,7 +20,7 @@ namespace thomas.Chess
             m_pieces = pieces;
         }
 
-        private bool ValidSpot(int row, int col)
+        private bool IsValidSpot(int row, int col)
         {
             return row < m_rows && col < m_cols && row >= 0 && col >= 0;
         }
@@ -30,7 +30,7 @@ namespace thomas.Chess
         /// </summary>
         public bool Move(int srcRow, int srcCol, int destRow, int destCol)
         {
-            if (!ValidSpot(srcRow, srcCol) || !ValidSpot(destRow, destCol))
+            if (!IsValidSpot(srcRow, srcCol) || !IsValidSpot(destRow, destCol))
                 return false;
 
             m_pieces[destRow, destCol] = m_pieces[srcRow, srcCol];
@@ -41,7 +41,7 @@ namespace thomas.Chess
         
         private bool IsOccupied(int row, int col)
         {
-            return !ValidSpot(row, col) || !m_pieces[row, col].IsEmpty();
+            return !IsValidSpot(row, col) || !m_pieces[row, col].IsEmpty();
         }
 
         public List<Tuple<int,int>> GetMoves(int row, int col)

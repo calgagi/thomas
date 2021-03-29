@@ -4,112 +4,168 @@ using System.Text;
 
 namespace thomas.Chess
 {
-    public enum PieceType
-    {
-        EMPTY = 0,
-        PAWN = 1,
-        KNIGHT = 2,
-        BISHOP = 3,
-        ROOK = 4,
-        QUEEN = 5,
-        KING = 6
-    };
-
+    /// <summary>
+    /// A descriptor used to determine what color a piece is.
+    /// </summary>
     public enum PieceColor
     {
-        WHITE = 1,
-        BLACK = 2
+        WHITE = 0,
+        BLACK = 1,
+        NOCOLOR = 2
     };
 
-    class Piece
+    public abstract class Piece
     {
         private readonly PieceColor m_color;
         private bool m_hasMoved;
-        private PieceType m_type;
+        private readonly bool m_infiniteDistance;
 
         /// <summary>
-        /// Takes in an PieceType and int of what color the piece is (0 = white, 1 = black)
+        /// Takes in an PieceColor and 
         /// </summary>
-        public Piece(PieceType type, PieceColor color)
+        public Piece(PieceColor color, bool infiniteDistance)
         {
             m_color = color;
             m_hasMoved = false;
-            m_type = type;
 
             return;
         }
 
+        /// <summary>
+        /// Returns what color the piece is.
+        /// </summary>
         public PieceColor GetColor()
         {
             return m_color;
         }
 
+        /// <summary>
+        /// Returns whether or not the piece has moved yet (useful for castling, en passant, etc.)
+        /// </summary>
+        /// <returns></returns>
         public bool HasMoved()
         {
             return m_hasMoved;
         }
 
+        /// <summary>
+        /// Sets the piece to have moved.
+        /// </summary>
         public void Move()
         {
             m_hasMoved = true;
             return;
         }
 
-        public PieceType Type()
+        /// <summary>
+        /// Returns whether or not the piece can move infinitely in 1 turn.
+        /// </summary>
+        /// <returns></returns>
+        public bool HasInfiniteDistance()
         {
-            return m_type;
+            return m_infiniteDistance;
+        }
+
+        /// <summary>
+        /// Returns an array of delta coordinates (r, c) that describe how a piece can move.
+        /// </summary>
+        public abstract int[,] GetMoveList();
+    }
+
+    public class King : Piece
+    {
+        public King(PieceColor color) : base(color, false)
+        {
+        }
+
+        public static int[,] MoveList = new int[,] { { 0, 1 }, { 0, -1 }, { 1, 0 }, { 1, -1 }, { 1, 1 }, { -1, 0 }, { -1, -1 }, { -1, 1 } };
+
+        public override int[,] GetMoveList()
+        {
+            return MoveList;
         }
     }
 
-    class PieceService
+    public class Queen : Piece
     {
-        private Piece[,,] m_pieces;
-        private bool m_hasInited = false;
-        private int[,,] m_moves;
-
-        public void Init()
+        public Queen(PieceColor color) : base(color, true)
         {
-            if (m_hasInited)
-                return;
-
-            GeneratePieces();
-            GenerateMoves();
-
-            m_hasInited = true;
-            return;
         }
 
-        public void GeneratePieces()
+        public static int[,] MoveList = new int[,] { { 0, 1 }, { 0, -1 }, { 1, 0 }, { 1, -1 }, { 1, 1 }, { -1, 0 }, { -1, -1 }, { -1, 1 } };
+
+        public override int[,] GetMoveList()
         {
-            PieceType[] pieceTypes = (PieceType[])Enum.GetValues(typeof(PieceType));
-            PieceColor[] pieceColors = (PieceColor[])Enum.GetValues(typeof(PieceColor));
+            return MoveList;
+        }
+    }
 
-            m_pieces = new Piece[pieceTypes.Length, pieceColors.Length, 2];
-
-            for (int i = 0; i < pieceTypes.Length; i++)
-            {
-                for (int j = 0; j < pieceColors.Length; j++)
-                {
-                    m_pieces[i, j, 0] = new Piece(pieceTypes[i], pieceColors[j]);
-                    m_pieces[i, j, 1] = new Piece(pieceTypes[i], pieceColors[j]);
-                    m_pieces[i, j, 1].Move();
-                }
-            }
-
-            return;
+    public class Rook : Piece
+    {
+        public Rook(PieceColor color) : base(color, true)
+        {
         }
 
-        public void 
+        public static int[,] MoveList = new int[,] { { 1, 0 }, { -1, 0 }, { 0, -1 }, { 0, 1 } };
 
-        public Piece Piece(PieceType type, PieceColor color, bool moved)
+        public override int[,] GetMoveList()
         {
-            Init();
-            return m_pieces[(int)type, (int)color, (moved ? 1 : 0)];
+            return MoveList;
+        }
+    }
+
+    public class Bishop : Piece
+    {
+        public Bishop(PieceColor color) : base(color, true)
+        {
         }
 
-        public int[,] GetMoveList(PieceType type)
-        {
+        public static int[,] MoveList = new int[,] { { 1, -1 }, { 1, 1 }, { -1, -1 }, { -1, 1 } };
 
+        public override int[,] GetMoveList()
+        {
+            return MoveList;
+        }
+    }
+
+    public class Knight : Piece
+    {
+        public Knight(PieceColor color) : base(color, false)
+        {
+        }
+
+        public static int[,] MoveList = new int[,] { { 2, -1 }, { 2, 1 }, { -2, -1 }, { -2, 1 }, { 1, -2 }, { 1, 2 }, { -1, -2 }, { -1, 2 } };
+
+        public override int[,] GetMoveList()
+        {
+            return MoveList;
+        }
+    }
+
+    public class Pawn : Piece
+    {
+        public Pawn(PieceColor color) : base(color, false)
+        {
+        }
+
+        /// <summary>
+        /// The Pawn's move list should be implemented by Board since all of Pawn's moves are determined by the Board state.
+        /// </summary>
+        public override int[,] GetMoveList()
+        {
+            return null;
+        }
+    }
+
+    public class Empty : Piece
+    {
+        public Empty() : base(PieceColor.NOCOLOR, false)
+        {
+        }
+
+        public override int[,] GetMoveList()
+        {
+            return null;
         }
     }
 }

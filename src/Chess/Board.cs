@@ -6,23 +6,31 @@ namespace thomas.Chess
 {
     class Board
     {
-        private readonly int m_rows = 8;
-        private readonly int m_cols = 8;
+        public int Rows { get; private set; }
+        public int Cols { get; private set; }
+
         private Piece[,] m_pieces;
 
-        public Board()
+        public Board(int rows, int cols)
         {
-            m_pieces = new Piece[m_rows, m_cols];
+            m_pieces = new Piece[rows, cols];
+            Rows = rows;
+            Cols = cols;
         }
 
+        /// <summary>
+        /// Initializes the board to the passed in 2D array of Pieces.
+        /// </summary>
         public Board(Piece[,] pieces)
         {
             m_pieces = pieces;
+            Rows = m_pieces.GetLength(0);
+            Cols = m_pieces.GetLength(1);
         }
 
         private bool IsValidSpot(int row, int col)
         {
-            return row < m_rows && col < m_cols && row >= 0 && col >= 0;
+            return row < Rows && col < Cols && row >= 0 && col >= 0;
         }
 
         /// <summary>
@@ -41,7 +49,11 @@ namespace thomas.Chess
         
         private bool IsOccupied(int row, int col)
         {
-            return !IsValidSpot(row, col) || !m_pieces[row, col].IsEmpty();
+            if (!IsValidSpot(row, col))
+            {
+                throw new Exception("IsOccupied: Not a valid board position to check");
+            }
+            return !(m_pieces[row, col] is Empty);
         }
 
         public List<Tuple<int,int>> GetMoves(int row, int col)
@@ -75,9 +87,9 @@ namespace thomas.Chess
         {
             List<Board> generatedBoards = new List<Board>();
 
-            for (int row = 0; row < m_rows; row++)
+            for (int row = 0; row < Rows; row++)
             {
-                for (int col = 0; col < m_cols; col++)
+                for (int col = 0; col < Cols; col++)
                 {
                     if (m_pieces[row, col].GetColor() == color)
                     {

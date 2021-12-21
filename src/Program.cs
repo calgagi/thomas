@@ -6,15 +6,12 @@ namespace thomas
     {
         static void Main(string[] args)
         {
-            IGame game = new Chess.Game();
+            PlayChess();
+        }
 
-            while (!game.HasEnded())
-            {
-                game.Play();
-                game.Display();
-            }
-
-            return;
+        static void PlayChess()
+        {
+            Chess.Game game = new Chess.Game();
         }
     }
 }

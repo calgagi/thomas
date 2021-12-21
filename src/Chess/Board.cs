@@ -1,107 +1,80 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace thomas.Chess
 {
-    class Board
+    class Board : IBoard
     {
-        public int Rows { get; private set; }
-        public int Cols { get; private set; }
+        public readonly int Rows = 8;
+        public readonly int Cols = 8;
+        private List<Piece> m_pieces = new();
 
-        private Piece[,] m_pieces;
-
-        public Board(int rows, int cols)
+        public Board()
         {
-            m_pieces = new Piece[rows, cols];
-            Rows = rows;
-            Cols = cols;
-        }
+            m_pieces = new(32);
 
-        /// <summary>
-        /// Initializes the board to the passed in 2D array of Pieces.
-        /// </summary>
-        public Board(Piece[,] pieces)
-        {
-            m_pieces = pieces;
-            Rows = m_pieces.GetLength(0);
-            Cols = m_pieces.GetLength(1);
-        }
-
-        private bool IsValidSpot(int row, int col)
-        {
-            return row < Rows && col < Cols && row >= 0 && col >= 0;
-        }
-
-        /// <summary>
-        /// Moves Piece at [srcRow, srcCol] to [destRow, destCol]. Returns true if successful.
-        /// </summary>
-        public bool Move(int srcRow, int srcCol, int destRow, int destCol)
-        {
-            if (!IsValidSpot(srcRow, srcCol) || !IsValidSpot(destRow, destCol))
-                return false;
-
-            m_pieces[destRow, destCol] = m_pieces[srcRow, srcCol];
-            m_pieces[srcRow, srcCol] = new Empty();
-
-            return true;
-        }
-        
-        private bool IsOccupied(int row, int col)
-        {
-            if (!IsValidSpot(row, col))
+            // Pawns
+            for (int i = 0; i < Rows; i++)
             {
-                throw new Exception("IsOccupied: Not a valid board position to check");
-            }
-            return !(m_pieces[row, col] is Empty);
-        }
-
-        public List<Tuple<int,int>> GetMoves(int row, int col)
-        {
-            List<Tuple<int, int>> offsets = new List<Tuple<int, int>>();
-            if (!IsOccupied(row, col))
-                return offsets;
-
-            int[,] moveDirections = m_pieces[row, col].GetMoveDirections();
-
-            for (int i = 0; i < moveDirections.Length; i++)
-            {
-                
+                m_pieces.Add(new Piece(PieceColor.WHITE, PieceType.PAWN, 6, i));
+                m_pieces.Add(new Piece(PieceColor.BLACK, PieceType.PAWN, 1, i));
             }
 
-            return offsets;
+            // Rooks
+            m_pieces.Add(new Piece(PieceColor.WHITE, PieceType.ROOK, 7, 0));
+            m_pieces.Add(new Piece(PieceColor.WHITE, PieceType.ROOK, 7, 7));
+            m_pieces.Add(new Piece(PieceColor.BLACK, PieceType.ROOK, 0, 0));
+            m_pieces.Add(new Piece(PieceColor.BLACK, PieceType.ROOK, 0, 7));
+
+            // Bishops
+            m_pieces.Add(new Piece(PieceColor.WHITE, PieceType.BISHOP, 7, 2));
+            m_pieces.Add(new Piece(PieceColor.WHITE, PieceType.BISHOP, 7, 5));
+            m_pieces.Add(new Piece(PieceColor.BLACK, PieceType.BISHOP, 0, 2));
+            m_pieces.Add(new Piece(PieceColor.BLACK, PieceType.BISHOP, 0, 5));
+
+            // Knights
+            m_pieces.Add(new Piece(PieceColor.WHITE, PieceType.KNIGHT, 7, 1));
+            m_pieces.Add(new Piece(PieceColor.WHITE, PieceType.KNIGHT, 7, 6));
+            m_pieces.Add(new Piece(PieceColor.BLACK, PieceType.KNIGHT, 0, 1));
+            m_pieces.Add(new Piece(PieceColor.BLACK, PieceType.KNIGHT, 0, 6));
+
+            // Queens
+            m_pieces.Add(new Piece(PieceColor.WHITE, PieceType.QUEEN, 7, 3));
+            m_pieces.Add(new Piece(PieceColor.BLACK, PieceType.QUEEN, 0, 3));
+
+            // Kings
+            m_pieces.Add(new Piece(PieceColor.WHITE, PieceType.KING, 7, 4));
+            m_pieces.Add(new Piece(PieceColor.BLACK, PieceType.KING, 0, 4));
         }
 
-        public Board Copy()
+        public void Display()
         {
-            Board boardToReturn = new Board();
-            
-
-            return boardToReturn;
-        }
-        
-        /// <summary>
-        /// Generates all possible board states for a certain color
-        /// </summary>
-        public List<Board> GenerateAllBoards(int color)
-        {
-            List<Board> generatedBoards = new List<Board>();
-
-            for (int row = 0; row < Rows; row++)
+            Piece[,] pieces = GetBoardArray();
+            for (int i = 0; i < Rows; i++)
             {
-                for (int col = 0; col < Cols; col++)
+                for (int j = 0; j < Cols; j++)
                 {
-                    if (m_pieces[row, col].GetColor() == color)
-                    {
-                        foreach (Tuple<int, int> location in GetMoves(row, col))
-                        {
-                            Board copy = this;
-                        }
-                    }
+                    Console.Write(Piece.GetDisplayCharacter(pieces[i, j]));
                 }
+                Console.WriteLine();
             }
+        }
 
-            return generatedBoards;
+        private Piece[,] GetBoardArray()
+        {
+            Piece[,] res = new Piece[Rows, Cols];
+            foreach (Piece piece in m_pieces)
+            {
+                res[piece.Row, piece.Column] = piece;
+            }
+            return res;
+        }
+
+        public IEnumerable<IBoard> GenerateNextBoards()
+        {
+            return null;
         }
     }
 }

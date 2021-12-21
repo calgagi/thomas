@@ -1,36 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace thomas.Chess
 {
-    class Game : IGame
+    class Game
     {
-        private Board m_board;
-        private bool m_hasEnded;
-        private bool m_turn;
+        private IBoard m_board;
+        private List<IPlayer> m_players;
 
-        void IGame.Setup()
+        public Game()
         {
-            m_turn = false;
-            m_hasEnded = false;
             m_board = new Board();
-
+            m_board.Display();
         }
 
-        void IGame.Play()
+        public Game(IBoard board, IPlayer[] players)
         {
-
+            m_players = new List<IPlayer>(players);
+            m_board = board;
+            Play();
         }
 
-        void IGame.Display()
+        void Play()
         {
-
-        }
-
-        bool IGame.HasEnded()
-        {
-            return m_hasEnded;
+            int playerIndex = 0;
+            while (!m_players[playerIndex].HasWon(m_board))
+            {
+                playerIndex = (playerIndex + 1) % m_players.Count;
+                m_board = m_players[playerIndex].PlayMove(m_board);
+            }
         }
     }
 }

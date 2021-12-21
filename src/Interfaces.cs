@@ -4,21 +4,15 @@ using System.Text;
 
 namespace thomas
 {
-    public interface IGame
+    public interface IBoard
     {
-        void Setup();
-        void Play();
+        IEnumerable<IBoard> GenerateNextBoards();
         void Display();
-        bool HasEnded();
-    }
-
-    public interface IAlgorithm
-    {
-        double Evaluate();
     }
 
     public interface IPlayer
     {
-
+        IBoard PlayMove(IBoard board);
+        bool HasWon(IBoard board);
     }
 }
